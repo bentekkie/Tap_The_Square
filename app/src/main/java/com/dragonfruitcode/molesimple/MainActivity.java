@@ -20,15 +20,15 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     ImageButton square;
     FrameLayout frame;
-    int screenWidth;
-    int screenHeight;
     TextView title;
     TextView counter;
-    int count = 20;
+    TextView lastTime;
     TextView timer;
+    int screenWidth;
+    int screenHeight;
+    int count = 20;
     long startTime;
     Timer time;
-    TextView lastTime;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
