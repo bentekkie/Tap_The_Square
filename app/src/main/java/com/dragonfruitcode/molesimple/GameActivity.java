@@ -5,14 +5,18 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,9 +28,11 @@ public class GameActivity extends AppCompatActivity {
     TextView counter;
     TextView lastTime;
     TextView timer;
+    EditText countInput;
     int screenWidth;
     int screenHeight;
-    int count = 20;
+    int countDefault = 10;
+    int count = countDefault;
     long startTime;
     Timer time;
     @Override
@@ -50,9 +56,17 @@ public class GameActivity extends AppCompatActivity {
         timer = setUpTextView("000:000",20.0f,Gravity.START,View.INVISIBLE);            // Setup timer text
         lastTime = setUpTextView("Last Time: \n",50.0f,Gravity.CENTER,View.INVISIBLE);  // Setup last time text
 
+        countInput = new EditText(this);
+        countInput.setText("20");
+        countInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        countInput.setTextSize(30.0f);
+        final FrameLayout.LayoutParams countInputLP = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,Gravity.CENTER_HORIZONTAL);
+        countInputLP.setMargins(0,screenHeight/4,0,0);
+
         //Below is the setup for the square that will be moving around
         square = new ImageButton(this);
-        square.setImageDrawable(new ColorDrawable(Color.BLUE));
+        square.setImageDrawable(getResources().getDrawable(R.drawable.hand_cursor));
+        square.setScaleType(ImageView.ScaleType.FIT_CENTER);
         square.setBackgroundColor(Color.TRANSPARENT);
         FrameLayout.LayoutParams squareLP = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.NO_GRAVITY);
         squareLP.setMargins(screenWidth * 3 / 8, screenHeight / 2 - screenWidth / 8, 0, 0);
@@ -66,6 +80,7 @@ public class GameActivity extends AppCompatActivity {
         frame.addView(timer,bottomLP);
         frame.addView(square,squareLP);
         frame.addView(lastTime,bottomLP);
+        frame.addView(countInput,countInputLP);
         setContentView(frame);
 
         //To handle taps on the square we have to add a OnClickListener to the square
@@ -73,9 +88,15 @@ public class GameActivity extends AppCompatActivity {
             @Override
             //The method below is run each time the square is tapped
             public void onClick(View view) {
+                if(countInput.getVisibility() == View.VISIBLE){
+                    countDefault = Integer.valueOf(countInput.getText().toString());
+                    count = countDefault;
+
+                }
                 //First we check if this is the first click, since the count is still at 20
-                if (count == 20) {
+                if (count == countDefault) {
                     //On the first click we have to hide the title and last time and show the counter and timer
+                    countInput.setVisibility(View.INVISIBLE);
                     title.setVisibility(View.INVISIBLE);
                     counter.setVisibility(View.VISIBLE);
                     timer.setVisibility(View.VISIBLE);
@@ -119,14 +140,15 @@ public class GameActivity extends AppCompatActivity {
                     lp.setMargins(newCoords[0], newCoords[1], 0, 0);
                 } else {
                                                                                                     //If this is the last tap then we...
-                    count = 20;                                                                     //reset the count to 20
+                    count = countDefault;                                                           //reset the count to 20
                     time.cancel();                                                                  //stop the timer
                     lp.setMargins(screenWidth * 3 / 8, screenHeight / 2 - screenWidth / 8, 0, 0);   //move the square to the center
-                    lastTime.setText("Last Time\n"+timer.getText());                                //set the last time
+                    lastTime.setText("Last Time\n" + timer.getText());                                //set the last time
                     lastTime.setVisibility(View.VISIBLE);                                           //rehide the timer and counter and show the title
                     counter.setVisibility(View.INVISIBLE);
                     title.setVisibility(View.VISIBLE);
                     timer.setVisibility(View.INVISIBLE);
+                    countInput.setVisibility(View.VISIBLE);
                 }
                 //Finally we move the square
                 square.setLayoutParams(lp);
